@@ -110,9 +110,21 @@ void saveGrammar(const string &filename,const vector<string> &terminals,const ve
     // Linha 6: Número total de produções
     outfile << productions.size() << endl;
 
+    vector<pair<string, string>> copProductions;
+    copy(productions.begin(),productions.end(),back_inserter(copProductions));
     // Linhas seguintes: Produções
-    for (const auto &production : productions) {
-        outfile << production.first << " -> " << production.second << endl;
+    for (int k=0; k <=copProductions.size(); k++) {
+        for(int j=k; j <copProductions.size(); j++) {
+            if(k<j){
+                if(copProductions[j].first == copProductions[k].first){
+                    copProductions[k].second = copProductions[k].second + "|" + copProductions[j].second;
+                    copProductions.erase(copProductions.begin()+j);
+                }
+            }
+        }
+    }
+    for (size_t i=0; i <copProductions.size(); i++) {
+        outfile << copProductions[i].first << " -> " << copProductions[i].second << endl;
     }
 
     outfile.close();
@@ -136,7 +148,7 @@ void convertToChomskyNormalForm(
         // Substituição de terminais por novos não-terminais
         for (size_t i = 0; i < rhs.length(); ++i) {
             string symbol(1, rhs[i]);
-            if (find(terminals.begin(), terminals.end(), symbol) != terminals.end()) {
+            if (find(terminals.begin(), terminals.end(), symbol) != terminals.end() && rhs.length()>1) {
                 if (terminalMappings.find(symbol) == terminalMappings.end()) {
                     // Adicionar novo não-terminal correspondente, como T_a
                     string newNonTerminal = "T_" + symbol;
